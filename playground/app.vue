@@ -10,6 +10,8 @@
     <PortableTextEditor
       v-model="model"
       class="editor-root"
+      :extensions="extensions"
+      :portable-text-block-extensions="portableTextBlockExtensions"
     >
       <template #toolbar="{ editor }">
         <button
@@ -40,10 +42,14 @@
         >
           code
         </button>
-        <button @click="editor.chain().focus().unsetAllMarks().run()">
+        <button
+          @click="editor.chain().focus().unsetAllMarks().run()"
+        >
           clear marks
         </button>
-        <button @click="editor.chain().focus().clearNodes().run()">
+        <button
+          @click="editor.chain().focus().clearNodes().run()"
+        >
           clear nodes
         </button>
         <button
@@ -112,11 +118,22 @@
         >
           blockquote
         </button>
-        <button @click="editor.chain().focus().setHorizontalRule().run()">
+        <button
+          @click="editor.chain().focus().setHorizontalRule().run()"
+        >
           horizontal rule
         </button>
-        <button @click="editor.chain().focus().setHardBreak().run()">
+        <button
+          @click="editor.chain().focus().setHardBreak().run()"
+        >
           hard break
+        </button>
+        <button
+          :disabled="!editor.can().chain().focus().toggleTaskList().run()"
+          :class="{ 'is-active': editor.isActive('taskList') }"
+          @click="editor.chain().focus().toggleTaskList().run()"
+        >
+          task list
         </button>
         <button
           :disabled="!editor.can().chain().focus().undo().run()"
@@ -141,10 +158,29 @@
 <script setup lang="ts">
 import type { PortableTextBlock } from '@portabletext/types'
 import { computed, ref } from 'vue'
+import { TaskItem, TaskList } from '@tiptap/extension-list'
+import { taskBlockExtension } from './taskBlockExtension'
 
 const model = ref<PortableTextBlock[]>([])
 
 const json = computed(() => JSON.stringify(model.value, null, 2))
+
+const portableTextBlockExtensions = [taskBlockExtension]
+
+const extensions = [
+  TaskList.configure({
+    HTMLAttributes: {
+      class: 'pte-taskList',
+    },
+  }),
+  TaskItem.configure({
+    // Ensure the task item belongs to the task list we register.
+    taskListTypeName: 'taskList',
+    HTMLAttributes: {
+      class: 'pte-taskItem',
+    },
+  }),
+]
 </script>
 
 <style scoped>
@@ -172,5 +208,45 @@ const json = computed(() => JSON.stringify(model.value, null, 2))
   padding: 1rem;
   overflow: auto;
   font-size: 0.8rem;
+}
+
+/* Task list styling (matches TipTap's TaskList demo layout):
+   TipTap renders TaskItem as:
+     <li data-type="taskItem">
+       <label><input type="checkbox" /><span /></label>
+       <div>...item text...</div>
+     </li>
+
+   We use flex to ensure the item text/nested content is laid out to the right
+   of the checkbox label (so it doesn't appear "under" the checkbox).
+*/
+:global(.portable-text-editor .ProseMirror ul[data-type='taskList']) {
+  list-style: none;
+  margin-left: 0;
+  padding: 0;
+}
+
+:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem']) {
+  align-items: flex-start;
+  display: flex;
+  list-style: none;
+}
+
+:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem'] > label) {
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
+  user-select: none;
+}
+
+:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem'] > div) {
+  flex: 1 1 auto;
+}
+
+:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] input[type='checkbox']) {
+  cursor: pointer;
+}
+
+:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] ul[data-type='taskList']) {
+  margin: 0;
 }
 </style>

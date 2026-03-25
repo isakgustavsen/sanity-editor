@@ -46,6 +46,7 @@
 import type { Schema } from '@portabletext/schema'
 import type { PortableTextBlock } from '@portabletext/types'
 import type { AnyExtension } from '@tiptap/core'
+import type { PortableTextBlockExtension } from '../types/portableTextBlockExtension'
 import {
   usePortableTextEditor,
   type UsePortableTextEditorOptions,
@@ -56,6 +57,7 @@ const model = defineModel<PortableTextBlock[]>({ default: () => [] })
 const props = defineProps<{
   schema?: Schema
   extensions?: AnyExtension[]
+  portableTextBlockExtensions?: PortableTextBlockExtension[]
   editorProps?: UsePortableTextEditorOptions['editorProps']
   keyGenerator?: UsePortableTextEditorOptions['keyGenerator']
 }>()
@@ -68,6 +70,7 @@ const { editor } = usePortableTextEditor(
   {
     schema: props.schema,
     extensions: props.extensions,
+    portableTextBlockExtensions: props.portableTextBlockExtensions,
     editorProps: props.editorProps,
     keyGenerator: props.keyGenerator,
   },

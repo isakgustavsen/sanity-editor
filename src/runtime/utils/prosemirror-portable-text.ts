@@ -4,6 +4,7 @@ import type {
   PortableTextMarkDefinition,
   PortableTextSpan,
 } from '@portabletext/types'
+import type { PortableTextBlockExtension } from '../types/portableTextBlockExtension'
 
 /** TipTap / ProseMirror JSON document shape from `editor.getJSON()` */
 export interface TiptapJSONDoc {
@@ -28,6 +29,8 @@ export interface PortableTextTransformContext {
   schema: Schema
   /** Defaults to random base36 keys */
   keyGenerator?: () => string
+  /** Optional custom block mappings for TipTap/ProseMirror <-> PT conversion. */
+  portableTextBlockExtensions?: PortableTextBlockExtension[]
 }
 
 const defaultKeyGenerator = (): string =>
@@ -107,8 +110,25 @@ function topLevelNodeToBlocks(
       return processList(node, 'bullet', 1, ctx)
     case 'orderedList':
       return processList(node, 'number', 1, ctx)
-    default:
+    default: {
+      const exts = ctx.portableTextBlockExtensions ?? []
+      for (const ext of exts) {
+        if (ext.mode === 'single') {
+          if (ext.tiptapNodeTypes.includes(node.type)) {
+            const blocks = ext.fromTiptapNode(node, ctx)
+            if (blocks?.length) return blocks
+          }
+          continue
+        }
+
+        // runContainer
+        if (ext.containerTiptapNodeType === node.type) {
+          const blocks = ext.fromTiptapNode(node, ctx)
+          if (blocks?.length) return blocks
+        }
+      }
       return []
+    }
   }
 }
 
@@ -275,6 +295,42 @@ export function portableTextToTipTapJson(
   let i = 0
   while (i < blocks.length) {
     const b = blocks[i]!
+    const exts = _ctx.portableTextBlockExtensions ?? []
+    let handled = false
+
+    // 1) Prefer runContainer mappings (consume multiple PT blocks at once).
+    for (const ext of exts) {
+      if (ext.mode !== 'runContainer') continue
+      if (b._type !== ext.type) continue
+
+      const res = ext.toTiptapNodeRun(blocks, i, _ctx)
+      if (!res) continue
+
+      content.push(res.node as TiptapJSONNode)
+      i = res.nextIndex
+      handled = true
+      break
+    }
+
+    if (handled) continue
+
+    // 2) Single-node mappings.
+    for (const ext of exts) {
+      if (ext.mode !== 'single') continue
+      if (b._type !== ext.type) continue
+
+      const node = ext.toTiptapNode(b, _ctx)
+      if (!node) continue
+
+      content.push(node as TiptapJSONNode)
+      i++
+      handled = true
+      break
+    }
+
+    if (handled) continue
+
+    // 3) Built-in conversions (paragraph-like + lists).
     if (!b.listItem) {
       content.push(blockToTopLevelNode(b))
       i++
