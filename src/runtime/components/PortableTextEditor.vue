@@ -51,24 +51,3 @@ const { editor } = usePortableTextEditor(
   },
 )
 </script>
-
-<style scoped>
-.portable-text-editor__toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.portable-text-editor__toolbar button {
-  padding: 0.35rem 0.6rem;
-  cursor: pointer;
-}
-
-.portable-text-editor__content {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  min-height: 12rem;
-  padding: 0.75rem;
-}
-</style>
