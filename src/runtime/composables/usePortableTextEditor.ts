@@ -1,21 +1,27 @@
-import type { Schema } from '@portabletext/schema'
+import type { Schema, SchemaDefinition } from '@portabletext/schema'
+import { compileSchema } from '@portabletext/schema'
 import type { PortableTextBlock } from '@portabletext/types'
 import type { AnyExtension } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
 import StarterKit from '@tiptap/starter-kit'
 import { useEditor } from '@tiptap/vue-3'
 import { nextTick, onBeforeUnmount, watch, type Ref } from 'vue'
-import { defaultCompiledPortableTextSchema } from '../utils/default-portable-text-schema'
+import {
+  defaultCompiledPortableTextSchema,
+  defaultPortableTextSchemaDefinition,
+} from '../utils/default-portable-text-schema'
 import {
   portableTextToTipTapJson,
   prosemirrorJsonToPortableText,
   type PortableTextTransformContext,
 } from '../utils/prosemirror-portable-text'
+import type { PortableTextBlockExtension } from '../types/portableTextBlockExtension'
 
 export interface UsePortableTextEditorOptions {
   /** Defaults to `defaultCompiledPortableTextSchema` */
   schema?: Schema
   extensions?: AnyExtension[]
+  portableTextBlockExtensions?: PortableTextBlockExtension[]
   /** Merged last; do not set `immediatelyRender` or `onUpdate` */
   editorProps?: Record<string, unknown>
   keyGenerator?: () => string
@@ -37,6 +43,44 @@ function serializePt(blocks: PortableTextBlock[]): string {
   return JSON.stringify(blocks)
 }
 
+function dedupeByName<T extends { name: string }>(items: T[]): T[] {
+  const out: T[] = []
+  const seen = new Set<string>()
+  for (const i of items) {
+    if (seen.has(i.name)) continue
+    seen.add(i.name)
+    out.push(i)
+  }
+  return out
+}
+
+function mergeSchemaDefinitions(
+  base: SchemaDefinition,
+  additions: Array<SchemaDefinition | undefined>,
+): SchemaDefinition {
+  const add = additions.filter(Boolean) as SchemaDefinition[]
+  return {
+    styles: dedupeByName([...(base.styles ?? []), ...add.flatMap(s => s.styles ?? [])]),
+    lists: dedupeByName([...(base.lists ?? []), ...add.flatMap(s => s.lists ?? [])]),
+    decorators: dedupeByName([
+      ...(base.decorators ?? []),
+      ...add.flatMap(s => s.decorators ?? []),
+    ]),
+    annotations: dedupeByName([
+      ...(base.annotations ?? []),
+      ...add.flatMap(s => s.annotations ?? []),
+    ]),
+    blockObjects: dedupeByName([
+      ...(base.blockObjects ?? []),
+      ...add.flatMap(s => s.blockObjects ?? []),
+    ]),
+    inlineObjects: dedupeByName([
+      ...(base.inlineObjects ?? []),
+      ...add.flatMap(s => s.inlineObjects ?? []),
+    ]),
+  }
+}
+
 /**
  * TipTap + Portable Text bridge for Nuxt. Pass a ref to your `v-model` array and a setter
  * (e.g. from `defineEmits`) to push updates upstream.
@@ -46,10 +90,20 @@ export function usePortableTextEditor(
   emitUpdate: (value: PortableTextBlock[]) => void,
   options: UsePortableTextEditorOptions = {},
 ) {
-  const schema = options.schema ?? defaultCompiledPortableTextSchema
+  const schema
+    = options.schema
+      ?? (options.portableTextBlockExtensions?.length
+        ? compileSchema(
+            mergeSchemaDefinitions(
+              defaultPortableTextSchemaDefinition as unknown as SchemaDefinition,
+              options.portableTextBlockExtensions.map(e => e.schemaDefinition),
+            ),
+          )
+        : defaultCompiledPortableTextSchema)
   const ctx: PortableTextTransformContext = {
     schema,
     keyGenerator: options.keyGenerator,
+    portableTextBlockExtensions: options.portableTextBlockExtensions,
   }
 
   let syncing = false
@@ -57,7 +111,9 @@ export function usePortableTextEditor(
 
   const editor = useEditor({
     content: portableTextToTipTapJson(modelValue.value, ctx),
-    extensions: [...(options.extensions ?? defaultExtensions)],
+    // Always include our base Portable Text editor extensions (document/parsing),
+    // then append user-provided extensions (e.g. task list).
+    extensions: [...defaultExtensions, ...(options.extensions ?? [])],
     immediatelyRender: false,
     onUpdate: ({ editor: ed }) => {
       if (syncing) return

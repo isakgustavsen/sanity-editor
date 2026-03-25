@@ -5,6 +5,14 @@ import {
   prosemirrorJsonToPortableText,
   type TiptapJSONDoc,
 } from '../../src/runtime/utils/prosemirror-portable-text'
+import { taskBlockExtension } from '../../playground/taskBlockExtension'
+import type { PortableTextBlock } from '@portabletext/types'
+
+type TaskPTBlock = PortableTextBlock & {
+  _type: 'task'
+  checked: boolean
+  text: string
+}
 
 const ctx = {
   schema: defaultCompiledPortableTextSchema,
@@ -12,6 +20,11 @@ const ctx = {
     let n = 0
     return () => `k${++n}`
   })(),
+}
+
+const taskCtx = {
+  ...ctx,
+  portableTextBlockExtensions: [taskBlockExtension],
 }
 
 describe('prosemirrorJsonToPortableText', () => {
@@ -73,6 +86,52 @@ describe('prosemirrorJsonToPortableText', () => {
     const blocks = prosemirrorJsonToPortableText(doc, ctx)
     expect(blocks).toHaveLength(3)
     expect((blocks[1] as { _type: string })._type).toBe('horizontal-rule')
+  })
+
+  it('maps taskList/taskItem to task blocks', () => {
+    const doc: TiptapJSONDoc = {
+      type: 'doc',
+      content: [
+        {
+          type: 'taskList',
+          content: [
+            {
+              type: 'taskItem',
+              attrs: { checked: true },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Buy milk' }],
+                },
+              ],
+            },
+            {
+              type: 'taskItem',
+              attrs: { checked: false },
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Walk dog' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    const blocks = prosemirrorJsonToPortableText(doc, taskCtx)
+    expect(blocks).toHaveLength(2)
+
+    const task0 = blocks[0] as unknown as TaskPTBlock
+    expect(task0._type).toBe('task')
+    expect(task0.checked).toBe(true)
+    expect(task0.text).toBe('Buy milk')
+
+    const task1 = blocks[1] as unknown as TaskPTBlock
+    expect(task1._type).toBe('task')
+    expect(task1.checked).toBe(false)
+    expect(task1.text).toBe('Walk dog')
   })
 })
 
@@ -145,5 +204,40 @@ describe('portableTextToTipTapJson', () => {
     expect(back.content?.[0]?.type).toBe('horizontalRule')
     const pt2 = prosemirrorJsonToPortableText(back, ctx)
     expect((pt2[0] as { _type: string })._type).toBe('horizontal-rule')
+  })
+
+  it('groups consecutive task blocks into a taskList', () => {
+    const pt = [
+      { _type: 'task', _key: 't1', checked: true, text: 'A' },
+      { _type: 'task', _key: 't2', checked: false, text: 'B' },
+    ] as unknown as TaskPTBlock[]
+
+    const back = portableTextToTipTapJson(pt, taskCtx)
+    expect(back.content?.[0]?.type).toBe('taskList')
+
+    const items = back.content?.[0]?.content ?? []
+    expect(items).toHaveLength(2)
+    expect(items[0]?.type).toBe('taskItem')
+    expect(items[0]?.attrs?.checked).toBe(true)
+    expect(items[0]?.content?.[0]?.content?.[0]?.text).toBe('A')
+  })
+
+  it('round-trips task blocks <-> taskList', () => {
+    const pt = [
+      { _type: 'task', _key: 't1', checked: true, text: 'Do thing' },
+      { _type: 'task', _key: 't2', checked: false, text: 'Do other' },
+    ] as unknown as TaskPTBlock[]
+
+    const tip = portableTextToTipTapJson(pt, taskCtx)
+    const roundTrip = prosemirrorJsonToPortableText(tip, taskCtx)
+
+    expect(roundTrip).toHaveLength(2)
+    const rt0 = roundTrip[0] as unknown as TaskPTBlock
+    const rt1 = roundTrip[1] as unknown as TaskPTBlock
+    expect(rt0._type).toBe('task')
+    expect(rt0.checked).toBe(true)
+    expect(rt0.text).toBe('Do thing')
+    expect(rt1.checked).toBe(false)
+    expect(rt1.text).toBe('Do other')
   })
 })
