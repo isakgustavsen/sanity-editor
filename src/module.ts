@@ -1,5 +1,5 @@
 import {
-  addComponentsDir,
+  addComponent,
   addImports,
   addPlugin,
   createResolver,
@@ -24,9 +24,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     await installModule('nuxt-tiptap-editor', {}, nuxt)
 
-    addComponentsDir({
-      path: resolver.resolve('./runtime/components'),
-      pathPrefix: false,
+    addComponent({
+      name: 'PortableTextEditor',
+      filePath: resolver.resolve('./runtime/components/PortableTextEditor.vue'),
     })
 
     addImports([
