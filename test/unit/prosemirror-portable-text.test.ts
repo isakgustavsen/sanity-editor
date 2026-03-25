@@ -60,6 +60,20 @@ describe('prosemirrorJsonToPortableText', () => {
     const blocks = prosemirrorJsonToPortableText(doc, ctx)
     expect(blocks[0]!.style).toBe('h2')
   })
+
+  it('maps horizontalRule to horizontal-rule block object', () => {
+    const doc: TiptapJSONDoc = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'A' }] },
+        { type: 'horizontalRule' },
+        { type: 'paragraph', content: [{ type: 'text', text: 'B' }] },
+      ],
+    }
+    const blocks = prosemirrorJsonToPortableText(doc, ctx)
+    expect(blocks).toHaveLength(3)
+    expect((blocks[1] as { _type: string })._type).toBe('horizontal-rule')
+  })
 })
 
 describe('portableTextToTipTapJson', () => {
@@ -119,5 +133,17 @@ describe('portableTextToTipTapJson', () => {
     expect(pt2).toHaveLength(2)
     expect(pt2[0]!.listItem).toBe('bullet')
     expect(pt2[1]!.listItem).toBe('bullet')
+  })
+
+  it('round-trips horizontal rule', () => {
+    const doc: TiptapJSONDoc = {
+      type: 'doc',
+      content: [{ type: 'horizontalRule' }],
+    }
+    const pt = prosemirrorJsonToPortableText(doc, ctx)
+    const back = portableTextToTipTapJson(pt, ctx)
+    expect(back.content?.[0]?.type).toBe('horizontalRule')
+    const pt2 = prosemirrorJsonToPortableText(back, ctx)
+    expect((pt2[0] as { _type: string })._type).toBe('horizontal-rule')
   })
 })

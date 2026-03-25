@@ -24,7 +24,7 @@ export const defaultPortableTextSchemaDefinition = defineSchema({
     { name: 'code' },
   ],
   annotations: [{ name: 'link', fields: [{ name: 'href', type: 'string' }] }],
-  blockObjects: [],
+  blockObjects: [{ name: 'horizontal-rule' }],
   inlineObjects: [],
 })
 

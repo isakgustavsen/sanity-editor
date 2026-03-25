@@ -37,6 +37,16 @@ function key(ctx: PortableTextTransformContext): string {
   return (ctx.keyGenerator ?? defaultKeyGenerator)()
 }
 
+/** Block object for TipTap `horizontalRule` (StarterKit); matches schema `horizontal-rule`. */
+function horizontalRulePortableBlock(
+  ctx: PortableTextTransformContext,
+): PortableTextBlock {
+  return {
+    _type: 'horizontal-rule',
+    _key: key(ctx),
+  } as unknown as PortableTextBlock
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -92,7 +102,7 @@ function topLevelNodeToBlocks(
       ]
     }
     case 'horizontalRule':
-      return []
+      return [horizontalRulePortableBlock(ctx)]
     case 'bulletList':
       return processList(node, 'bullet', 1, ctx)
     case 'orderedList':
@@ -338,6 +348,9 @@ function consumeListRun(
 }
 
 function blockToTopLevelNode(block: PortableTextBlock): TiptapJSONNode {
+  if ((block as { _type?: string })._type === 'horizontal-rule') {
+    return { type: 'horizontalRule' }
+  }
   const style = block.style ?? 'normal'
   if (style === 'blockquote') {
     return {
