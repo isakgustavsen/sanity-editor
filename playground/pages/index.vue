@@ -10,68 +10,99 @@
     </div>
 
     <UCard>
-      <SanityEditor v-model="blocks" :extensions="extensions" :block-extensions="blockExtensions">
+      <SanityEditor
+        v-model="blocks"
+        :extensions="extensions"
+        :block-extensions="blockExtensions"
+      >
         <template #toolbar="{ editor }">
           <div class="flex flex-wrap gap-1 border-b border-gray-200 pb-2 dark:border-gray-700">
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('bold') }"
               :disabled="!editor.can().chain().focus().toggleBold().run()"
-              @click="editor.chain().focus().toggleBold().run()">
+              @click="editor.chain().focus().toggleBold().run()"
+            >
               Bold
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('italic') }"
               :disabled="!editor.can().chain().focus().toggleItalic().run()"
-              @click="editor.chain().focus().toggleItalic().run()">
+              @click="editor.chain().focus().toggleItalic().run()"
+            >
               Italic
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('strike') }"
               :disabled="!editor.can().chain().focus().toggleStrike().run()"
-              @click="editor.chain().focus().toggleStrike().run()">
+              @click="editor.chain().focus().toggleStrike().run()"
+            >
               Strike
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('heading', { level: 1 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()">
+              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+            >
               H1
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('heading', { level: 2 }) }"
-              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()">
+              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+            >
               H2
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('bulletList') }"
-              @click="editor.chain().focus().toggleBulletList().run()">
+              @click="editor.chain().focus().toggleBulletList().run()"
+            >
               List
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('orderedList') }"
-              @click="editor.chain().focus().toggleOrderedList().run()">
+              @click="editor.chain().focus().toggleOrderedList().run()"
+            >
               Ordered
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('taskList') }"
               :disabled="!editor.can().chain().focus().toggleTaskList().run()"
-              @click="editor.chain().focus().toggleTaskList().run()">
+              @click="editor.chain().focus().toggleTaskList().run()"
+            >
               Tasks
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800" type="button"
-              @click="insertCallout(editor)">
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+              type="button"
+              @click="insertCallout(editor)"
+            >
               Callout
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
               :class="{ 'bg-gray-200 dark:bg-gray-700': editor.isActive('blockquote') }"
-              @click="editor.chain().focus().toggleBlockquote().run()">
+              @click="editor.chain().focus().toggleBlockquote().run()"
+            >
               Quote
             </button>
-            <button class="ml-auto rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
-              :disabled="!editor.can().chain().focus().undo().run()" @click="editor.chain().focus().undo().run()">
+            <button
+              class="ml-auto rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+              :disabled="!editor.can().chain().focus().undo().run()"
+              @click="editor.chain().focus().undo().run()"
+            >
               Undo
             </button>
-            <button class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
-              :disabled="!editor.can().chain().focus().redo().run()" @click="editor.chain().focus().redo().run()">
+            <button
+              class="rounded px-2 py-1 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
+              :disabled="!editor.can().chain().focus().redo().run()"
+              @click="editor.chain().focus().redo().run()"
+            >
               Redo
             </button>
           </div>

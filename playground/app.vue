@@ -11,7 +11,10 @@
               variant="ghost"
               size="sm"
             >
-              <NuxtLink to="/" exact-active-class="bg-gray-100 dark:bg-gray-800">
+              <NuxtLink
+                to="/"
+                exact-active-class="bg-gray-100 dark:bg-gray-800"
+              >
                 Unstyled
               </NuxtLink>
             </UButton>
@@ -21,7 +24,10 @@
               variant="ghost"
               size="sm"
             >
-              <NuxtLink to="/u-editor" exact-active-class="bg-gray-100 dark:bg-gray-800">
+              <NuxtLink
+                to="/u-editor"
+                exact-active-class="bg-gray-100 dark:bg-gray-800"
+              >
                 UEditor
               </NuxtLink>
             </UButton>

@@ -4,7 +4,6 @@ import {
   addPlugin,
   createResolver,
   defineNuxtModule,
-  installModule,
 } from '@nuxt/kit'
 import type { Schema } from '@portabletext/schema'
 
@@ -24,7 +23,7 @@ export default defineNuxtModule<ModuleOptions>({
     },
   },
   defaults: {},
-  async setup(_options, nuxt) {
+  async setup(_options) {
     const resolver = createResolver(import.meta.url)
 
     addComponent({

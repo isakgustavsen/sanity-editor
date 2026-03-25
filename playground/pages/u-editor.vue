@@ -11,38 +11,90 @@
     </div>
 
     <UCard class="overflow-hidden p-0!">
-      <UEditor ref="editorRef" v-slot="{ editor }" content-type="json" :model-value="tiptapJson"
-        :extensions="editorExtensions" placeholder="Write, type '/' for commands..."
-        :ui="{ base: 'p-6 sm:p-8 min-h-64' }" class="w-full" @update:model-value="handleUpdate">
+      <UEditor
+        ref="editorRef"
+        v-slot="{ editor }"
+        content-type="json"
+        :model-value="tiptapJson"
+        :extensions="editorExtensions"
+        placeholder="Write, type '/' for commands..."
+        :ui="{ base: 'p-6 sm:p-8 min-h-64' }"
+        class="w-full"
+        @update:model-value="handleUpdate"
+      >
         <div
-          class="flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50/80 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/50">
-          <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-megaphone" label="Insert callout"
-            @click="insertCallout(editor)" />
+          class="flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50/80 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/50"
+        >
+          <UButton
+            size="xs"
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-megaphone"
+            label="Insert callout"
+            @click="insertCallout(editor)"
+          />
         </div>
-        <UEditorToolbar :editor="editor" :items="fixedToolbarItems"
-          class="sticky top-14 z-10 overflow-x-auto border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900" />
+        <UEditorToolbar
+          :editor="editor"
+          :items="fixedToolbarItems"
+          class="sticky top-14 z-10 overflow-x-auto border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900"
+        />
 
-        <UEditorToolbar :editor="editor" :items="bubbleToolbarItems" layout="bubble" :should-show="({ editor: e, view, state }) => {
-          if (e.isActive('image')) return false
-          return view.hasFocus() && !state.selection.empty
-        }" />
+        <UEditorToolbar
+          :editor="editor"
+          :items="bubbleToolbarItems"
+          layout="bubble"
+          :should-show="({ editor: e, view, state }) => {
+            if (e.isActive('image')) return false
+            return view.hasFocus() && !state.selection.empty
+          }"
+        />
 
-        <UEditorSuggestionMenu :editor="editor" :items="suggestionItems" />
+        <UEditorSuggestionMenu
+          :editor="editor"
+          :items="suggestionItems"
+        />
 
-        <UEditorMentionMenu :editor="editor" :items="mentionItems" />
+        <UEditorMentionMenu
+          :editor="editor"
+          :items="mentionItems"
+        />
 
-        <UEditorDragHandle v-slot="{ ui, onClick }" :editor="editor" @node-change="selectedNode = $event">
-          <UButton icon="i-lucide-plus" color="neutral" variant="ghost" size="sm" :class="ui.handle()" @click="(e) => {
-            e.stopPropagation()
-            const selected = onClick()
-            editor.chain().insertContentAt((selected?.pos ?? 0) + 1, { type: 'paragraph' }).focus().run()
-          }" />
+        <UEditorDragHandle
+          v-slot="{ ui, onClick }"
+          :editor="editor"
+          @node-change="selectedNode = $event"
+        >
+          <UButton
+            icon="i-lucide-plus"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :class="ui.handle()"
+            @click="(e) => {
+              e.stopPropagation()
+              const selected = onClick()
+              editor.chain().insertContentAt((selected?.pos ?? 0) + 1, { type: 'paragraph' }).focus().run()
+            }"
+          />
 
-          <UDropdownMenu v-slot="{ open }" :modal="false" :items="handleItems(editor)" :content="{ side: 'left' }"
+          <UDropdownMenu
+            v-slot="{ open }"
+            :modal="false"
+            :items="handleItems(editor)"
+            :content="{ side: 'left' }"
             :ui="{ content: 'w-48', label: 'text-xs' }"
-            @update:open="editor.chain().setMeta('lockDragHandle', $event).run()">
-            <UButton color="neutral" variant="ghost" active-variant="soft" size="sm" icon="i-lucide-grip-vertical"
-              :active="open" :class="ui.handle()" />
+            @update:open="editor.chain().setMeta('lockDragHandle', $event).run()"
+          >
+            <UButton
+              color="neutral"
+              variant="ghost"
+              active-variant="soft"
+              size="sm"
+              icon="i-lucide-grip-vertical"
+              :active="open"
+              :class="ui.handle()"
+            />
           </UDropdownMenu>
         </UEditorDragHandle>
       </UEditor>
