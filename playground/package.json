@@ -8,8 +8,11 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxt/ui": "^4.6.0",
     "@tiptap/extension-list": "^3.20.5",
+    "@tiptap/extension-text-align": "^3.20.5",
     "nuxt": "^4.4.2",
-    "nuxt-tiptap-editor": "3.2.0"
+    "nuxt-tiptap-editor": "3.2.0",
+    "tailwindcss": "^4.2.2"
   }
 }
