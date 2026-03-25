@@ -1,14 +1,7 @@
 import type { PortableTextBlock } from '@portabletext/types'
 import type { SanityEditorBlockExtension } from '../src/runtime/types/sanityEditorBlockExtension'
-
-const defaultKeyGenerator = (): string => `k${Math.random().toString(36).slice(2, 11)}`
-
-type Ctx = { keyGenerator?: () => string }
-
-function ptKey(ctx: unknown): string {
-  const maybe = ctx as Ctx
-  return typeof maybe?.keyGenerator === 'function' ? maybe.keyGenerator() : defaultKeyGenerator()
-}
+import type { SanityEditorTransformContext } from '../src/runtime/types/sanity-editor-transform-context'
+import { sanityEditorGenerateKey } from '../src/runtime/utils/sanity-editor-prosemirror'
 
 type TiptapNode = {
   type?: string
@@ -63,7 +56,7 @@ export const taskBlockExtension: SanityEditorBlockExtension = {
       },
     ],
   },
-  fromTiptapNode: (node: unknown, ctx: unknown): PortableTextBlock[] | null => {
+  fromTiptapNode: (node: unknown, ctx: SanityEditorTransformContext): PortableTextBlock[] | null => {
     if (!isRecord(node)) return null
 
     const tiptapNode = node as TiptapNode
@@ -82,7 +75,7 @@ export const taskBlockExtension: SanityEditorBlockExtension = {
 
       out.push({
         _type: 'task',
-        _key: ptKey(ctx),
+        _key: sanityEditorGenerateKey(ctx),
         checked,
         text,
       } as unknown as PortableTextBlock)
@@ -93,7 +86,7 @@ export const taskBlockExtension: SanityEditorBlockExtension = {
   toTiptapNodeRun: (
     blocks: PortableTextBlock[],
     startIndex: number,
-    _ctx: unknown,
+    _ctx: SanityEditorTransformContext,
   ) => {
     if (startIndex < 0 || startIndex >= blocks.length) return null
 

@@ -1,10 +1,9 @@
-import type { Schema } from '@portabletext/schema'
 import type {
   PortableTextBlock,
   PortableTextMarkDefinition,
   PortableTextSpan,
 } from '@portabletext/types'
-import type { SanityEditorBlockExtension } from '../types/sanityEditorBlockExtension'
+import type { SanityEditorTransformContext } from '../types/sanity-editor-transform-context'
 
 /** TipTap / ProseMirror JSON document shape from `editor.getJSON()` */
 export interface TiptapJSONDoc {
@@ -25,19 +24,28 @@ export type TiptapJSONMark = {
   attrs?: Record<string, unknown>
 }
 
-export interface SanityEditorTransformContext {
-  schema: Schema
-  /** Defaults to random base36 keys */
-  keyGenerator?: () => string
-  /** Optional custom block mappings for TipTap/ProseMirror ↔ block conversion. */
-  blockExtensions?: SanityEditorBlockExtension[]
-}
+export type { SanityEditorTransformContext } from '../types/sanity-editor-transform-context'
 
 const defaultKeyGenerator = (): string =>
   `k${Math.random().toString(36).slice(2, 11)}`
 
 function key(ctx: SanityEditorTransformContext): string {
   return (ctx.keyGenerator ?? defaultKeyGenerator)()
+}
+
+/**
+ * Next Portable Text `_key` using the context’s `keyGenerator` (or the default).
+ */
+export function sanityEditorGenerateKey(ctx: SanityEditorTransformContext): string {
+  return key(ctx)
+}
+
+/**
+ * Plain text from a TipTap JSON node tree (paragraphs, hard breaks → newlines).
+ * Handy in `fromTiptapNode` for block components that store a simple string field.
+ */
+export function sanityEditorFlattenTextInTiptapNode(node: TiptapJSONNode): string {
+  return flattenTextInNode(node)
 }
 
 /** Block object for TipTap `horizontalRule` (StarterKit); matches schema `horizontal-rule`. */

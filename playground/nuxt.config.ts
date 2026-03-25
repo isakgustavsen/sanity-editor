@@ -15,7 +15,7 @@ export default defineNuxtConfig({
         '@nuxt/ui > prosemirror-model',
         '@nuxt/ui > prosemirror-view',
         '@nuxt/ui > prosemirror-gapcursor',
-      ]
-    }
-  }
+      ],
+    },
+  },
 })

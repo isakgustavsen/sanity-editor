@@ -5,6 +5,7 @@ import {
   sanityEditorProsemirrorJsonToBlocks,
   type TiptapJSONDoc,
 } from '../../src/runtime/utils/sanity-editor-prosemirror'
+import { calloutBlockExtension } from '../../playground/calloutExtension'
 import { taskBlockExtension } from '../../playground/taskBlockExtension'
 import type { PortableTextBlock } from '@portabletext/types'
 
@@ -25,6 +26,11 @@ const ctx = {
 const taskCtx = {
   ...ctx,
   blockExtensions: [taskBlockExtension],
+}
+
+const calloutCtx = {
+  ...ctx,
+  blockExtensions: [calloutBlockExtension],
 }
 
 describe('sanityEditorProsemirrorJsonToBlocks', () => {
@@ -86,6 +92,30 @@ describe('sanityEditorProsemirrorJsonToBlocks', () => {
     const blocks = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
     expect(blocks).toHaveLength(3)
     expect((blocks[1] as { _type: string })._type).toBe('horizontal-rule')
+  })
+
+  it('maps callout node to callout block object', () => {
+    const doc: TiptapJSONDoc = {
+      type: 'doc',
+      content: [
+        {
+          type: 'callout',
+          attrs: { variant: 'warning' },
+          content: [
+            {
+              type: 'paragraph',
+              content: [{ type: 'text', text: 'Hello callout' }],
+            },
+          ],
+        },
+      ],
+    }
+    const blocks = sanityEditorProsemirrorJsonToBlocks(doc, calloutCtx)
+    expect(blocks).toHaveLength(1)
+    const c = blocks[0] as PortableTextBlock & { variant?: string, text?: string }
+    expect(c._type).toBe('callout')
+    expect(c.variant).toBe('warning')
+    expect(c.text).toBe('Hello callout')
   })
 
   it('maps taskList/taskItem to task blocks', () => {
@@ -220,6 +250,28 @@ describe('sanityEditorBlocksToTiptapJson', () => {
     expect(items[0]?.type).toBe('taskItem')
     expect(items[0]?.attrs?.checked).toBe(true)
     expect(items[0]?.content?.[0]?.content?.[0]?.text).toBe('A')
+  })
+
+  it('round-trips callout block <-> callout node', () => {
+    const pt = [
+      {
+        _type: 'callout',
+        _key: 'c1',
+        variant: 'info',
+        text: 'Note',
+      },
+    ] as unknown as PortableTextBlock[]
+
+    const tip = sanityEditorBlocksToTiptapJson(pt, calloutCtx)
+    expect(tip.content?.[0]?.type).toBe('callout')
+    expect(tip.content?.[0]?.attrs?.variant).toBe('info')
+
+    const roundTrip = sanityEditorProsemirrorJsonToBlocks(tip, calloutCtx)
+    expect(roundTrip).toHaveLength(1)
+    const c = roundTrip[0] as PortableTextBlock & { variant?: string, text?: string }
+    expect(c._type).toBe('callout')
+    expect(c.variant).toBe('info')
+    expect(c.text).toBe('Note')
   })
 
   it('round-trips task blocks <-> taskList', () => {

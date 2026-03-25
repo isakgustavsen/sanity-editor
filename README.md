@@ -1,6 +1,6 @@
 # sanity-editor
 
-**Experimental** Nuxt module: edit [Portable Text](https://portabletext.org/) in the browser with [TipTap](https://tiptap.dev/), bridged via ProseMirror JSON (not HTML). Pairs with [`nuxt-tiptap-editor`](https://github.com/modbender/nuxt-tiptap-editor).
+**Experimental** Nuxt module: edit [Portable Text](https://portabletext.org/) in the browser with [TipTap](https://tiptap.dev/), bridged via ProseMirror JSON (not HTML). It declares [`nuxt-tiptap-editor`](https://github.com/modbender/nuxt-tiptap-editor) as a **module dependency** and registers it during setup.
 
 We are **looking for feedback** on API shape, schema coverage, and real-world Sanity workflows. Please open [Issues](https://github.com/isakgustavsen/sanity-editor/issues) or use **Feedback** in the issue chooser. Enable [Discussions](https://github.com/isakgustavsen/sanity-editor/discussions) on the repo if you want open-ended threads.
 
@@ -18,13 +18,13 @@ Public APIs are prefixed with **`sanityEditor`** / **`SanityEditor`** per [Nuxt 
 ## Requirements
 
 - Nuxt 4
-- `nuxt-tiptap-editor` (installed as a peer; the module registers it for you)
+- `sanity-editor` — `nuxt-tiptap-editor` is resolved via `moduleDependencies` (see [`src/module.ts`](src/module.ts))
 
 ## Installation
 
 ```bash
-pnpm add sanity-editor nuxt-tiptap-editor
-# or: npm install sanity-editor nuxt-tiptap-editor
+pnpm add sanity-editor
+# or: npm install sanity-editor
 ```
 
 Add the module in `nuxt.config.ts`:

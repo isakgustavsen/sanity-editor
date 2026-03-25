@@ -1,5 +1,6 @@
 import type { SchemaDefinition } from '@portabletext/schema'
 import type { PortableTextBlock } from '@portabletext/types'
+import type { SanityEditorTransformContext } from './sanity-editor-transform-context'
 
 /**
  * User-extensible mapping between TipTap/ProseMirror JSON nodes and
@@ -33,12 +34,18 @@ export interface SanityEditorSingleNodeBlockExtension {
   /**
    * Convert a TipTap/ProseMirror node into one or more Portable Text blocks.
    */
-  fromTiptapNode: (node: unknown, ctx: unknown) => PortableTextBlock[] | null
+  fromTiptapNode: (
+    node: unknown,
+    ctx: SanityEditorTransformContext,
+  ) => PortableTextBlock[] | null
 
   /**
    * Convert a single Portable Text block into a TipTap/ProseMirror node.
    */
-  toTiptapNode: (block: PortableTextBlock, ctx: unknown) => unknown | null
+  toTiptapNode: (
+    block: PortableTextBlock,
+    ctx: SanityEditorTransformContext,
+  ) => unknown | null
 }
 
 export interface SanityEditorRunContainerBlockExtension {
@@ -67,7 +74,10 @@ export interface SanityEditorRunContainerBlockExtension {
   /**
    * Convert a container node into one or more Portable Text blocks (the run).
    */
-  fromTiptapNode: (node: unknown, ctx: unknown) => PortableTextBlock[] | null
+  fromTiptapNode: (
+    node: unknown,
+    ctx: SanityEditorTransformContext,
+  ) => PortableTextBlock[] | null
 
   /**
    * Convert a run of Portable Text blocks into a container node.
@@ -77,6 +87,6 @@ export interface SanityEditorRunContainerBlockExtension {
   toTiptapNodeRun: (
     blocks: PortableTextBlock[],
     startIndex: number,
-    ctx: unknown,
+    ctx: SanityEditorTransformContext,
   ) => { node: unknown, nextIndex: number } | null
 }

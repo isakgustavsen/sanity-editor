@@ -1,7 +1,9 @@
 ---
+title: sanity-editor
+description: Portable Text editor for Nuxt with TipTap, typed model values, and extensible block mappings.
 seo:
   title: sanity-editor — Portable Text editor for Nuxt
-  description: Edit Portable Text in the browser with TipTap. Nuxt 4 module with v-model for PortableTextBlock[], ProseMirror JSON bridge, and extensible schema.
+  description: Edit Portable Text in Nuxt with TipTap and keep `PortableTextBlock[]` as your model value using a ProseMirror JSON bridge and extensible schema mappings.
 ---
 
 ::u-page-hero
@@ -90,13 +92,13 @@ What you get
   :::u-page-feature
   ---
   icon: i-lucide-puzzle
-  to: /guide/block-extensions
+  to: /guide/block-components
   ---
   #title
   Extensible blocks
 
   #description
-  Add TipTap extensions and `SanityEditorBlockExtension` mappings for custom block types (single node or run containers).
+  `defineSanityEditorBlockComponent` plus `SanityEditorBlockExtension` mappings for custom block objects; run containers for list-like structures — see [Block extensions](/guide/block-extensions).
   :::
 
   :::u-page-feature
@@ -121,6 +123,6 @@ What you get
   Built for [Nuxt 4]{.text-primary}
 
   #description
-  Registers `nuxt-tiptap-editor` for you. Pair with your Sanity or any workflow that stores Portable Text.
+  Declares and registers `nuxt-tiptap-editor` as a module dependency. Pair with your Sanity or any workflow that stores Portable Text.
   :::
 ::

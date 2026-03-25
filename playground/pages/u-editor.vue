@@ -10,72 +10,39 @@
       </p>
     </div>
 
-    <UCard class="overflow-hidden !p-0">
-      <UEditor
-        ref="editorRef"
-        v-slot="{ editor }"
-        content-type="json"
-        :extensions="[TextAlign.configure({ types: ['heading', 'paragraph'] })]"
-        placeholder="Write, type '/' for commands..."
-        :ui="{ base: 'p-6 sm:p-8 min-h-64' }"
-        class="w-full"
-        @update:model-value="handleUpdate"
-      >
-        <UEditorToolbar
-          :editor="editor"
-          :items="fixedToolbarItems"
-          class="sticky top-14 z-10 overflow-x-auto border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900"
-        />
+    <UCard class="overflow-hidden p-0!">
+      <UEditor ref="editorRef" v-slot="{ editor }" content-type="json" :model-value="tiptapJson"
+        :extensions="editorExtensions" placeholder="Write, type '/' for commands..."
+        :ui="{ base: 'p-6 sm:p-8 min-h-64' }" class="w-full" @update:model-value="handleUpdate">
+        <div
+          class="flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50/80 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/50">
+          <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-megaphone" label="Insert callout"
+            @click="insertCallout(editor)" />
+        </div>
+        <UEditorToolbar :editor="editor" :items="fixedToolbarItems"
+          class="sticky top-14 z-10 overflow-x-auto border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900" />
 
-        <UEditorToolbar
-          :editor="editor"
-          :items="bubbleToolbarItems"
-          layout="bubble"
-          :should-show="({ editor: e, view, state }) => {
-            if (e.isActive('image')) return false
-            return view.hasFocus() && !state.selection.empty
-          }"
-        />
+        <UEditorToolbar :editor="editor" :items="bubbleToolbarItems" layout="bubble" :should-show="({ editor: e, view, state }) => {
+          if (e.isActive('image')) return false
+          return view.hasFocus() && !state.selection.empty
+        }" />
 
         <UEditorSuggestionMenu :editor="editor" :items="suggestionItems" />
 
         <UEditorMentionMenu :editor="editor" :items="mentionItems" />
 
-        <UEditorDragHandle
-          v-slot="{ ui, onClick }"
-          :editor="editor"
-          @node-change="selectedNode = $event"
-        >
-          <UButton
-            icon="i-lucide-plus"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :class="ui.handle()"
-            @click="(e) => {
-              e.stopPropagation()
-              const selected = onClick()
-              editor.chain().insertContentAt((selected?.pos ?? 0) + 1, { type: 'paragraph' }).focus().run()
-            }"
-          />
+        <UEditorDragHandle v-slot="{ ui, onClick }" :editor="editor" @node-change="selectedNode = $event">
+          <UButton icon="i-lucide-plus" color="neutral" variant="ghost" size="sm" :class="ui.handle()" @click="(e) => {
+            e.stopPropagation()
+            const selected = onClick()
+            editor.chain().insertContentAt((selected?.pos ?? 0) + 1, { type: 'paragraph' }).focus().run()
+          }" />
 
-          <UDropdownMenu
-            v-slot="{ open }"
-            :modal="false"
-            :items="handleItems(editor)"
-            :content="{ side: 'left' }"
+          <UDropdownMenu v-slot="{ open }" :modal="false" :items="handleItems(editor)" :content="{ side: 'left' }"
             :ui="{ content: 'w-48', label: 'text-xs' }"
-            @update:open="editor.chain().setMeta('lockDragHandle', $event).run()"
-          >
-            <UButton
-              color="neutral"
-              variant="ghost"
-              active-variant="soft"
-              size="sm"
-              icon="i-lucide-grip-vertical"
-              :active="open"
-              :class="ui.handle()"
-            />
+            @update:open="editor.chain().setMeta('lockDragHandle', $event).run()">
+            <UButton color="neutral" variant="ghost" active-variant="soft" size="sm" icon="i-lucide-grip-vertical"
+              :active="open" :class="ui.handle()" />
           </UDropdownMenu>
         </UEditorDragHandle>
       </UEditor>
@@ -92,22 +59,48 @@
 
 <script setup lang="ts">
 import type { EditorToolbarItem, EditorSuggestionMenuItem, EditorMentionMenuItem, DropdownMenuItem } from '@nuxt/ui'
-import type { JSONContent } from '@tiptap/vue-3'
-import type { Editor } from '@tiptap/vue-3'
+import type { Editor, JSONContent } from '@tiptap/vue-3'
 import type { PortableTextBlock } from '@portabletext/types'
 import { upperFirst } from 'scule'
 import { mapEditorItems } from '@nuxt/ui/utils/editor'
 import { TextAlign } from '@tiptap/extension-text-align'
+import { calloutBlockExtension, SanityCallout } from '../calloutExtension'
 
 const editorRef = useTemplateRef('editorRef')
 
 const blocks = ref<PortableTextBlock[]>([])
-const ctx = createSanityEditorContext()
+const ctx = createSanityEditorContext({
+  blockExtensions: [calloutBlockExtension],
+})
+
+const tiptapJson = computed(() => sanityEditorBlocksToTiptapJson(blocks.value, ctx))
+
+const editorExtensions = [
+  SanityCallout,
+  TextAlign.configure({ types: ['heading', 'paragraph'] }),
+]
 
 const json = computed(() => JSON.stringify(blocks.value, null, 2))
 
 function handleUpdate(value: JSONContent) {
   blocks.value = sanityEditorProsemirrorJsonToBlocks(value, ctx)
+}
+
+function insertCallout(editor: Editor) {
+  editor
+    .chain()
+    .focus()
+    .insertContent({
+      type: 'callout',
+      attrs: { variant: 'warning' },
+      content: [
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: 'Portable Text callout from UEditor.' }],
+        },
+      ],
+    })
+    .run()
 }
 
 const selectedNode = ref<{ node: JSONContent, pos: number }>()
