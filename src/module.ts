@@ -1,19 +1,62 @@
-import { defineNuxtModule, addPlugin, createResolver } from '@nuxt/kit'
+import {
+  addComponentsDir,
+  addImports,
+  addPlugin,
+  createResolver,
+  defineNuxtModule,
+  installModule,
+} from '@nuxt/kit'
+import type { Schema } from '@portabletext/schema'
 
-// Module options TypeScript interface definition
-export interface ModuleOptions {}
+export interface ModuleOptions {
+  /** Optional compiled Portable Text schema; defaults are applied in runtime utils */
+  schema?: Schema
+}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'my-module',
-    configKey: 'myModule',
+    name: 'sanity-editor',
+    configKey: 'portableTextEditor',
   },
-  // Default configuration options of the Nuxt module
   defaults: {},
-  setup(_options, _nuxt) {
+  async setup(_options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
+    await installModule('nuxt-tiptap-editor', {}, nuxt)
+
+    addComponentsDir({
+      path: resolver.resolve('./runtime/components'),
+      pathPrefix: false,
+    })
+
+    addImports([
+      {
+        name: 'usePortableTextEditor',
+        as: 'usePortableTextEditor',
+        from: resolver.resolve('./runtime/composables/usePortableTextEditor'),
+      },
+      {
+        name: 'prosemirrorJsonToPortableText',
+        as: 'prosemirrorJsonToPortableText',
+        from: resolver.resolve('./runtime/utils/prosemirror-portable-text'),
+      },
+      {
+        name: 'portableTextToTipTapJson',
+        as: 'portableTextToTipTapJson',
+        from: resolver.resolve('./runtime/utils/prosemirror-portable-text'),
+      },
+      {
+        name: 'defaultCompiledPortableTextSchema',
+        as: 'defaultCompiledPortableTextSchema',
+        from: resolver.resolve('./runtime/utils/default-portable-text-schema'),
+      },
+      {
+        name: 'defaultPortableTextSchemaDefinition',
+        as: 'defaultPortableTextSchemaDefinition',
+        from: resolver.resolve('./runtime/utils/default-portable-text-schema'),
+      },
+    ])
+
     addPlugin(resolver.resolve('./runtime/plugin'))
   },
 })
