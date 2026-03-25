@@ -18,15 +18,19 @@ export default defineNuxtModule<ModuleOptions>({
     name: 'sanity-editor',
     configKey: 'sanityEditor',
   },
+  moduleDependencies: {
+    'nuxt-tiptap-editor': {
+      version: '>=3.2.0',
+    },
+  },
   defaults: {},
   async setup(_options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    await installModule('nuxt-tiptap-editor', {}, nuxt)
-
     addComponent({
       name: 'SanityEditor',
       filePath: resolver.resolve('./runtime/components/SanityEditor.vue'),
+      mode: 'client',
     })
 
     addImports([
@@ -36,6 +40,21 @@ export default defineNuxtModule<ModuleOptions>({
         from: resolver.resolve('./runtime/composables/useSanityEditor'),
       },
       {
+        name: 'defineSanityEditorBlockComponent',
+        as: 'defineSanityEditorBlockComponent',
+        from: resolver.resolve('./runtime/utils/define-sanity-editor-block-component'),
+      },
+      {
+        name: 'mergeSchemaDefinitions',
+        as: 'mergeSchemaDefinitions',
+        from: resolver.resolve('./runtime/utils/resolve-sanity-editor-schema'),
+      },
+      {
+        name: 'resolveSanityEditorCompiledSchema',
+        as: 'resolveSanityEditorCompiledSchema',
+        from: resolver.resolve('./runtime/utils/resolve-sanity-editor-schema'),
+      },
+      {
         name: 'sanityEditorProsemirrorJsonToBlocks',
         as: 'sanityEditorProsemirrorJsonToBlocks',
         from: resolver.resolve('./runtime/utils/sanity-editor-prosemirror'),
@@ -43,6 +62,16 @@ export default defineNuxtModule<ModuleOptions>({
       {
         name: 'sanityEditorBlocksToTiptapJson',
         as: 'sanityEditorBlocksToTiptapJson',
+        from: resolver.resolve('./runtime/utils/sanity-editor-prosemirror'),
+      },
+      {
+        name: 'sanityEditorGenerateKey',
+        as: 'sanityEditorGenerateKey',
+        from: resolver.resolve('./runtime/utils/sanity-editor-prosemirror'),
+      },
+      {
+        name: 'sanityEditorFlattenTextInTiptapNode',
+        as: 'sanityEditorFlattenTextInTiptapNode',
         from: resolver.resolve('./runtime/utils/sanity-editor-prosemirror'),
       },
       {
