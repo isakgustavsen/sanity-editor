@@ -105,10 +105,10 @@ What you get
   to: /guide/nuxt-ui-editor
   ---
   #title
-  [Nuxt UI editor chrome]{.text-primary}
+  [Nuxt UI editor]{.text-primary}
 
   #description
-  Compose `UEditorToolbar` and related components with `usePortableTextEditor`—same TipTap `editor`, Portable Text `v-model` via the composable.
+  Bind `UEditor` with `createPortableTextContext` and the JSON converters, or use `usePortableTextEditor` with `UEditorToolbar` and `TiptapEditorContent`.
   :::
 
   :::u-page-feature
