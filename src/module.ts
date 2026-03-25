@@ -55,6 +55,11 @@ export default defineNuxtModule<ModuleOptions>({
         as: 'defaultPortableTextSchemaDefinition',
         from: resolver.resolve('./runtime/utils/default-portable-text-schema'),
       },
+      {
+        name: 'createPortableTextContext',
+        as: 'createPortableTextContext',
+        from: resolver.resolve('./runtime/utils/create-portable-text-context'),
+      },
     ])
 
     addPlugin(resolver.resolve('./runtime/plugin'))
