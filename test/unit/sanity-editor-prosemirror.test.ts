@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { defaultCompiledPortableTextSchema } from '../../src/runtime/utils/default-portable-text-schema'
+import { sanityEditorDefaultCompiledSchema } from '../../src/runtime/utils/default-sanity-editor-schema'
 import {
-  portableTextToTipTapJson,
-  prosemirrorJsonToPortableText,
+  sanityEditorBlocksToTiptapJson,
+  sanityEditorProsemirrorJsonToBlocks,
   type TiptapJSONDoc,
-} from '../../src/runtime/utils/prosemirror-portable-text'
+} from '../../src/runtime/utils/sanity-editor-prosemirror'
 import { taskBlockExtension } from '../../playground/taskBlockExtension'
 import type { PortableTextBlock } from '@portabletext/types'
 
@@ -15,7 +15,7 @@ type TaskPTBlock = PortableTextBlock & {
 }
 
 const ctx = {
-  schema: defaultCompiledPortableTextSchema,
+  schema: sanityEditorDefaultCompiledSchema,
   keyGenerator: (() => {
     let n = 0
     return () => `k${++n}`
@@ -24,10 +24,10 @@ const ctx = {
 
 const taskCtx = {
   ...ctx,
-  portableTextBlockExtensions: [taskBlockExtension],
+  blockExtensions: [taskBlockExtension],
 }
 
-describe('prosemirrorJsonToPortableText', () => {
+describe('sanityEditorProsemirrorJsonToBlocks', () => {
   it('includes markDefs as an empty array when there are no link annotations', () => {
     const doc: TiptapJSONDoc = {
       type: 'doc',
@@ -35,7 +35,7 @@ describe('prosemirrorJsonToPortableText', () => {
         { type: 'paragraph', content: [{ type: 'text', text: 'Hi' }] },
       ],
     }
-    const blocks = prosemirrorJsonToPortableText(doc, ctx)
+    const blocks = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
     expect(blocks[0]!.markDefs).toEqual([])
   })
 
@@ -49,7 +49,7 @@ describe('prosemirrorJsonToPortableText', () => {
         },
       ],
     }
-    const blocks = prosemirrorJsonToPortableText(doc, ctx)
+    const blocks = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
     expect(blocks).toHaveLength(1)
     expect(blocks[0]!.style).toBe('normal')
     expect(blocks[0]!.children?.[0]).toMatchObject({
@@ -70,7 +70,7 @@ describe('prosemirrorJsonToPortableText', () => {
         },
       ],
     }
-    const blocks = prosemirrorJsonToPortableText(doc, ctx)
+    const blocks = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
     expect(blocks[0]!.style).toBe('h2')
   })
 
@@ -83,7 +83,7 @@ describe('prosemirrorJsonToPortableText', () => {
         { type: 'paragraph', content: [{ type: 'text', text: 'B' }] },
       ],
     }
-    const blocks = prosemirrorJsonToPortableText(doc, ctx)
+    const blocks = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
     expect(blocks).toHaveLength(3)
     expect((blocks[1] as { _type: string })._type).toBe('horizontal-rule')
   })
@@ -120,7 +120,7 @@ describe('prosemirrorJsonToPortableText', () => {
       ],
     }
 
-    const blocks = prosemirrorJsonToPortableText(doc, taskCtx)
+    const blocks = sanityEditorProsemirrorJsonToBlocks(doc, taskCtx)
     expect(blocks).toHaveLength(2)
 
     const task0 = blocks[0] as unknown as TaskPTBlock
@@ -135,7 +135,7 @@ describe('prosemirrorJsonToPortableText', () => {
   })
 })
 
-describe('portableTextToTipTapJson', () => {
+describe('sanityEditorBlocksToTiptapJson', () => {
   it('round-trips simple paragraph', () => {
     const doc: TiptapJSONDoc = {
       type: 'doc',
@@ -146,8 +146,8 @@ describe('portableTextToTipTapJson', () => {
         },
       ],
     }
-    const pt = prosemirrorJsonToPortableText(doc, ctx)
-    const back = portableTextToTipTapJson(pt, ctx)
+    const pt = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
+    const back = sanityEditorBlocksToTiptapJson(pt, ctx)
     expect(back.type).toBe('doc')
     expect(back.content?.[0]!.type).toBe('paragraph')
     expect(back.content?.[0]!.content?.[0]).toMatchObject({
@@ -186,9 +186,9 @@ describe('portableTextToTipTapJson', () => {
         },
       ],
     }
-    const pt = prosemirrorJsonToPortableText(doc, ctx)
-    const back = portableTextToTipTapJson(pt, ctx)
-    const pt2 = prosemirrorJsonToPortableText(back, ctx)
+    const pt = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
+    const back = sanityEditorBlocksToTiptapJson(pt, ctx)
+    const pt2 = sanityEditorProsemirrorJsonToBlocks(back, ctx)
     expect(pt2).toHaveLength(2)
     expect(pt2[0]!.listItem).toBe('bullet')
     expect(pt2[1]!.listItem).toBe('bullet')
@@ -199,10 +199,10 @@ describe('portableTextToTipTapJson', () => {
       type: 'doc',
       content: [{ type: 'horizontalRule' }],
     }
-    const pt = prosemirrorJsonToPortableText(doc, ctx)
-    const back = portableTextToTipTapJson(pt, ctx)
+    const pt = sanityEditorProsemirrorJsonToBlocks(doc, ctx)
+    const back = sanityEditorBlocksToTiptapJson(pt, ctx)
     expect(back.content?.[0]?.type).toBe('horizontalRule')
-    const pt2 = prosemirrorJsonToPortableText(back, ctx)
+    const pt2 = sanityEditorProsemirrorJsonToBlocks(back, ctx)
     expect((pt2[0] as { _type: string })._type).toBe('horizontal-rule')
   })
 
@@ -212,7 +212,7 @@ describe('portableTextToTipTapJson', () => {
       { _type: 'task', _key: 't2', checked: false, text: 'B' },
     ] as unknown as TaskPTBlock[]
 
-    const back = portableTextToTipTapJson(pt, taskCtx)
+    const back = sanityEditorBlocksToTiptapJson(pt, taskCtx)
     expect(back.content?.[0]?.type).toBe('taskList')
 
     const items = back.content?.[0]?.content ?? []
@@ -228,8 +228,8 @@ describe('portableTextToTipTapJson', () => {
       { _type: 'task', _key: 't2', checked: false, text: 'Do other' },
     ] as unknown as TaskPTBlock[]
 
-    const tip = portableTextToTipTapJson(pt, taskCtx)
-    const roundTrip = prosemirrorJsonToPortableText(tip, taskCtx)
+    const tip = sanityEditorBlocksToTiptapJson(pt, taskCtx)
+    const roundTrip = sanityEditorProsemirrorJsonToBlocks(tip, taskCtx)
 
     expect(roundTrip).toHaveLength(2)
     const rt0 = roundTrip[0] as unknown as TaskPTBlock

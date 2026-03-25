@@ -9,14 +9,14 @@ import {
 import type { Schema } from '@portabletext/schema'
 
 export interface ModuleOptions {
-  /** Optional compiled Portable Text schema; defaults are applied in runtime utils */
+  /** Optional compiled schema; defaults are applied in runtime utils */
   schema?: Schema
 }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'sanity-editor',
-    configKey: 'portableTextEditor',
+    configKey: 'sanityEditor',
   },
   defaults: {},
   async setup(_options, nuxt) {
@@ -25,40 +25,40 @@ export default defineNuxtModule<ModuleOptions>({
     await installModule('nuxt-tiptap-editor', {}, nuxt)
 
     addComponent({
-      name: 'PortableTextEditor',
-      filePath: resolver.resolve('./runtime/components/PortableTextEditor.vue'),
+      name: 'SanityEditor',
+      filePath: resolver.resolve('./runtime/components/SanityEditor.vue'),
     })
 
     addImports([
       {
-        name: 'usePortableTextEditor',
-        as: 'usePortableTextEditor',
-        from: resolver.resolve('./runtime/composables/usePortableTextEditor'),
+        name: 'useSanityEditor',
+        as: 'useSanityEditor',
+        from: resolver.resolve('./runtime/composables/useSanityEditor'),
       },
       {
-        name: 'prosemirrorJsonToPortableText',
-        as: 'prosemirrorJsonToPortableText',
-        from: resolver.resolve('./runtime/utils/prosemirror-portable-text'),
+        name: 'sanityEditorProsemirrorJsonToBlocks',
+        as: 'sanityEditorProsemirrorJsonToBlocks',
+        from: resolver.resolve('./runtime/utils/sanity-editor-prosemirror'),
       },
       {
-        name: 'portableTextToTipTapJson',
-        as: 'portableTextToTipTapJson',
-        from: resolver.resolve('./runtime/utils/prosemirror-portable-text'),
+        name: 'sanityEditorBlocksToTiptapJson',
+        as: 'sanityEditorBlocksToTiptapJson',
+        from: resolver.resolve('./runtime/utils/sanity-editor-prosemirror'),
       },
       {
-        name: 'defaultCompiledPortableTextSchema',
-        as: 'defaultCompiledPortableTextSchema',
-        from: resolver.resolve('./runtime/utils/default-portable-text-schema'),
+        name: 'sanityEditorDefaultCompiledSchema',
+        as: 'sanityEditorDefaultCompiledSchema',
+        from: resolver.resolve('./runtime/utils/default-sanity-editor-schema'),
       },
       {
-        name: 'defaultPortableTextSchemaDefinition',
-        as: 'defaultPortableTextSchemaDefinition',
-        from: resolver.resolve('./runtime/utils/default-portable-text-schema'),
+        name: 'sanityEditorDefaultSchemaDefinition',
+        as: 'sanityEditorDefaultSchemaDefinition',
+        from: resolver.resolve('./runtime/utils/default-sanity-editor-schema'),
       },
       {
-        name: 'createPortableTextContext',
-        as: 'createPortableTextContext',
-        from: resolver.resolve('./runtime/utils/create-portable-text-context'),
+        name: 'createSanityEditorContext',
+        as: 'createSanityEditorContext',
+        from: resolver.resolve('./runtime/utils/create-sanity-editor-context'),
       },
     ])
 

@@ -2,10 +2,10 @@ import { compileSchema, defineSchema } from '@portabletext/schema'
 import type { Schema } from '@portabletext/schema'
 
 /**
- * Default Portable Text definition for standard block content (blog-style body).
+ * Default block definition for standard body content (blog-style).
  * Matches TipTap StarterKit + Link features we map in the JSON transformers.
  */
-export const defaultPortableTextSchemaDefinition = defineSchema({
+export const sanityEditorDefaultSchemaDefinition = defineSchema({
   styles: [
     { name: 'normal' },
     { name: 'h1' },
@@ -28,6 +28,6 @@ export const defaultPortableTextSchemaDefinition = defineSchema({
   inlineObjects: [],
 })
 
-export const defaultCompiledPortableTextSchema: Schema = compileSchema(
-  defaultPortableTextSchemaDefinition,
+export const sanityEditorDefaultCompiledSchema: Schema = compileSchema(
+  sanityEditorDefaultSchemaDefinition,
 )

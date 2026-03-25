@@ -6,22 +6,22 @@ import Link from '@tiptap/extension-link'
 import StarterKit from '@tiptap/starter-kit'
 import { useEditor } from '@tiptap/vue-3'
 import { nextTick, onBeforeUnmount, watch, type Ref } from 'vue'
+import type { SanityEditorBlockExtension } from '../types/sanityEditorBlockExtension'
 import {
-  defaultCompiledPortableTextSchema,
-  defaultPortableTextSchemaDefinition,
-} from '../utils/default-portable-text-schema'
+  sanityEditorDefaultCompiledSchema,
+  sanityEditorDefaultSchemaDefinition,
+} from '../utils/default-sanity-editor-schema'
 import {
-  portableTextToTipTapJson,
-  prosemirrorJsonToPortableText,
-  type PortableTextTransformContext,
-} from '../utils/prosemirror-portable-text'
-import type { PortableTextBlockExtension } from '../types/portableTextBlockExtension'
+  sanityEditorBlocksToTiptapJson,
+  sanityEditorProsemirrorJsonToBlocks,
+  type SanityEditorTransformContext,
+} from '../utils/sanity-editor-prosemirror'
 
-export interface UsePortableTextEditorOptions {
-  /** Defaults to `defaultCompiledPortableTextSchema` */
+export interface UseSanityEditorOptions {
+  /** Defaults to `sanityEditorDefaultCompiledSchema` */
   schema?: Schema
   extensions?: AnyExtension[]
-  portableTextBlockExtensions?: PortableTextBlockExtension[]
+  blockExtensions?: SanityEditorBlockExtension[]
   /** Merged last; do not set `immediatelyRender` or `onUpdate` */
   editorProps?: Record<string, unknown>
   keyGenerator?: () => string
@@ -82,42 +82,40 @@ function mergeSchemaDefinitions(
 }
 
 /**
- * TipTap + Portable Text bridge for Nuxt. Pass a ref to your `v-model` array and a setter
+ * TipTap + block-array bridge for Nuxt. Pass a ref to your `v-model` array and a setter
  * (e.g. from `defineEmits`) to push updates upstream.
  */
-export function usePortableTextEditor(
+export function useSanityEditor(
   modelValue: Ref<PortableTextBlock[]>,
   emitUpdate: (value: PortableTextBlock[]) => void,
-  options: UsePortableTextEditorOptions = {},
+  options: UseSanityEditorOptions = {},
 ) {
   const schema
     = options.schema
-      ?? (options.portableTextBlockExtensions?.length
+      ?? (options.blockExtensions?.length
         ? compileSchema(
             mergeSchemaDefinitions(
-              defaultPortableTextSchemaDefinition as unknown as SchemaDefinition,
-              options.portableTextBlockExtensions.map(e => e.schemaDefinition),
+              sanityEditorDefaultSchemaDefinition as unknown as SchemaDefinition,
+              options.blockExtensions.map(e => e.schemaDefinition),
             ),
           )
-        : defaultCompiledPortableTextSchema)
-  const ctx: PortableTextTransformContext = {
+        : sanityEditorDefaultCompiledSchema)
+  const ctx: SanityEditorTransformContext = {
     schema,
     keyGenerator: options.keyGenerator,
-    portableTextBlockExtensions: options.portableTextBlockExtensions,
+    blockExtensions: options.blockExtensions,
   }
 
   let syncing = false
   let lastEmitted = serializePt(modelValue.value)
 
   const editor = useEditor({
-    content: portableTextToTipTapJson(modelValue.value, ctx),
-    // Always include our base Portable Text editor extensions (document/parsing),
-    // then append user-provided extensions (e.g. task list).
+    content: sanityEditorBlocksToTiptapJson(modelValue.value, ctx),
     extensions: [...defaultExtensions, ...(options.extensions ?? [])],
     immediatelyRender: false,
     onUpdate: ({ editor: ed }) => {
       if (syncing) return
-      const next = prosemirrorJsonToPortableText(ed.getJSON(), ctx)
+      const next = sanityEditorProsemirrorJsonToBlocks(ed.getJSON(), ctx)
       const s = serializePt(next)
       if (s === lastEmitted) return
       lastEmitted = s
@@ -135,7 +133,7 @@ export function usePortableTextEditor(
       const ed = editor.value
       if (!ed) return
       syncing = true
-      ed.commands.setContent(portableTextToTipTapJson(next ?? [], ctx))
+      ed.commands.setContent(sanityEditorBlocksToTiptapJson(next ?? [], ctx))
       void nextTick(() => {
         syncing = false
       })

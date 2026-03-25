@@ -8,11 +8,11 @@ import type { PortableTextBlock } from '@portabletext/types'
  * `type` refers to the Portable Text block `_type` produced/consumed by the
  * extension.
  */
-export type PortableTextBlockExtension
-  = PortableTextSingleNodeBlockExtension
-    | PortableTextRunContainerBlockExtension
+export type SanityEditorBlockExtension
+  = SanityEditorSingleNodeBlockExtension
+    | SanityEditorRunContainerBlockExtension
 
-export interface PortableTextSingleNodeBlockExtension {
+export interface SanityEditorSingleNodeBlockExtension {
   /**
    * Portable Text block `_type` (e.g. `task`).
    * The editor will use this `_type` to route conversion.
@@ -41,7 +41,7 @@ export interface PortableTextSingleNodeBlockExtension {
   toTiptapNode: (block: PortableTextBlock, ctx: unknown) => unknown | null
 }
 
-export interface PortableTextRunContainerBlockExtension {
+export interface SanityEditorRunContainerBlockExtension {
   /**
    * Portable Text block `_type` for each item in the run.
    * Example: each `task` item block corresponds to one `taskItem`.

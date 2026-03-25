@@ -2,16 +2,16 @@
   <div class="playground">
     <h1>Portable Text + TipTap</h1>
     <p class="hint">
-      <code>PortableTextEditor</code> is a <code>.client.vue</code> component (no
+      <code>SanityEditor</code> is a <code>.client.vue</code> component (no
       <code>ClientOnly</code> wrapper needed). TipTap uses
       <code>immediatelyRender: false</code> for Nuxt SSR.
     </p>
 
-    <PortableTextEditor
+    <SanityEditor
       v-model="model"
       class="editor-root"
       :extensions="extensions"
-      :portable-text-block-extensions="portableTextBlockExtensions"
+      :block-extensions="blockExtensions"
     >
       <template #toolbar="{ editor }">
         <button
@@ -148,7 +148,7 @@
           redo
         </button>
       </template>
-    </PortableTextEditor>
+    </SanityEditor>
 
     <h2>Portable Text (JSON)</h2>
     <pre class="json">{{ json }}</pre>
@@ -165,7 +165,7 @@ const model = ref<PortableTextBlock[]>([])
 
 const json = computed(() => JSON.stringify(model.value, null, 2))
 
-const portableTextBlockExtensions = [taskBlockExtension]
+const blockExtensions = [taskBlockExtension]
 
 const extensions = [
   TaskList.configure({
@@ -220,33 +220,33 @@ const extensions = [
    We use flex to ensure the item text/nested content is laid out to the right
    of the checkbox label (so it doesn't appear "under" the checkbox).
 */
-:global(.portable-text-editor .ProseMirror ul[data-type='taskList']) {
+:global(.sanity-editor .ProseMirror ul[data-type='taskList']) {
   list-style: none;
   margin-left: 0;
   padding: 0;
 }
 
-:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem']) {
+:global(.sanity-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem']) {
   align-items: flex-start;
   display: flex;
   list-style: none;
 }
 
-:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem'] > label) {
+:global(.sanity-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem'] > label) {
   flex: 0 0 auto;
   margin-right: 0.5rem;
   user-select: none;
 }
 
-:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem'] > div) {
+:global(.sanity-editor .ProseMirror ul[data-type='taskList'] li[data-type='taskItem'] > div) {
   flex: 1 1 auto;
 }
 
-:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] input[type='checkbox']) {
+:global(.sanity-editor .ProseMirror ul[data-type='taskList'] input[type='checkbox']) {
   cursor: pointer;
 }
 
-:global(.portable-text-editor .ProseMirror ul[data-type='taskList'] ul[data-type='taskList']) {
+:global(.sanity-editor .ProseMirror ul[data-type='taskList'] ul[data-type='taskList']) {
   margin: 0;
 }
 </style>

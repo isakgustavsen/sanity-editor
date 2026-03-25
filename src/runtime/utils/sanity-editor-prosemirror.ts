@@ -4,7 +4,7 @@ import type {
   PortableTextMarkDefinition,
   PortableTextSpan,
 } from '@portabletext/types'
-import type { PortableTextBlockExtension } from '../types/portableTextBlockExtension'
+import type { SanityEditorBlockExtension } from '../types/sanityEditorBlockExtension'
 
 /** TipTap / ProseMirror JSON document shape from `editor.getJSON()` */
 export interface TiptapJSONDoc {
@@ -25,24 +25,24 @@ export type TiptapJSONMark = {
   attrs?: Record<string, unknown>
 }
 
-export interface PortableTextTransformContext {
+export interface SanityEditorTransformContext {
   schema: Schema
   /** Defaults to random base36 keys */
   keyGenerator?: () => string
-  /** Optional custom block mappings for TipTap/ProseMirror <-> PT conversion. */
-  portableTextBlockExtensions?: PortableTextBlockExtension[]
+  /** Optional custom block mappings for TipTap/ProseMirror ↔ block conversion. */
+  blockExtensions?: SanityEditorBlockExtension[]
 }
 
 const defaultKeyGenerator = (): string =>
   `k${Math.random().toString(36).slice(2, 11)}`
 
-function key(ctx: PortableTextTransformContext): string {
+function key(ctx: SanityEditorTransformContext): string {
   return (ctx.keyGenerator ?? defaultKeyGenerator)()
 }
 
 /** Block object for TipTap `horizontalRule` (StarterKit); matches schema `horizontal-rule`. */
 function horizontalRulePortableBlock(
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
 ): PortableTextBlock {
   return {
     _type: 'horizontal-rule',
@@ -60,9 +60,9 @@ function asDoc(node: unknown): TiptapJSONDoc | null {
   return node as unknown as TiptapJSONDoc
 }
 
-export function prosemirrorJsonToPortableText(
+export function sanityEditorProsemirrorJsonToBlocks(
   docJson: unknown,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
 ): PortableTextBlock[] {
   const doc = asDoc(docJson)
   if (!doc) return []
@@ -75,7 +75,7 @@ export function prosemirrorJsonToPortableText(
 
 function topLevelNodeToBlocks(
   node: TiptapJSONNode,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
 ): PortableTextBlock[] {
   switch (node.type) {
     case 'paragraph':
@@ -111,7 +111,7 @@ function topLevelNodeToBlocks(
     case 'orderedList':
       return processList(node, 'number', 1, ctx)
     default: {
-      const exts = ctx.portableTextBlockExtensions ?? []
+      const exts = ctx.blockExtensions ?? []
       for (const ext of exts) {
         if (ext.mode === 'single') {
           if (ext.tiptapNodeTypes.includes(node.type)) {
@@ -136,7 +136,7 @@ function processList(
   list: TiptapJSONNode,
   listKind: 'bullet' | 'number',
   level: number,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
 ): PortableTextBlock[] {
   const out: PortableTextBlock[] = []
   for (const li of list.content ?? []) {
@@ -150,7 +150,7 @@ function processListItem(
   li: TiptapJSONNode,
   listKind: 'bullet' | 'number',
   level: number,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
 ): PortableTextBlock[] {
   const out: PortableTextBlock[] = []
   for (const child of li.content ?? []) {
@@ -175,7 +175,7 @@ function processListItem(
 
 function blockFromParagraphLike(
   node: TiptapJSONNode,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
   opts: {
     style: string
     listItem?: 'bullet' | 'number'
@@ -210,7 +210,7 @@ function flattenTextInNode(node: TiptapJSONNode): string {
 
 function inlineContentToSpans(
   nodes: TiptapJSONNode[],
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
   markDefs: PortableTextMarkDefinition[],
 ): PortableTextSpan[] {
   const spans: PortableTextSpan[] = []
@@ -232,7 +232,7 @@ function inlineContentToSpans(
 
 function textNodeToSpan(
   node: TiptapJSONNode,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
   markDefs: PortableTextMarkDefinition[],
 ): PortableTextSpan {
   const marks: string[] = []
@@ -250,7 +250,7 @@ function textNodeToSpan(
 
 function tiptapMarkToPortable(
   mark: TiptapJSONMark,
-  ctx: PortableTextTransformContext,
+  ctx: SanityEditorTransformContext,
   markDefs: PortableTextMarkDefinition[],
 ): string | undefined {
   switch (mark.type) {
@@ -279,10 +279,10 @@ function tiptapMarkToPortable(
   }
 }
 
-/** Build TipTap `setContent` JSON from Portable Text blocks */
-export function portableTextToTipTapJson(
+/** Build TipTap `setContent` JSON from block array */
+export function sanityEditorBlocksToTiptapJson(
   blocks: PortableTextBlock[],
-  _ctx: PortableTextTransformContext,
+  _ctx: SanityEditorTransformContext,
 ): TiptapJSONDoc {
   if (!blocks.length) {
     return {
@@ -295,7 +295,7 @@ export function portableTextToTipTapJson(
   let i = 0
   while (i < blocks.length) {
     const b = blocks[i]!
-    const exts = _ctx.portableTextBlockExtensions ?? []
+    const exts = _ctx.blockExtensions ?? []
     let handled = false
 
     // 1) Prefer runContainer mappings (consume multiple PT blocks at once).

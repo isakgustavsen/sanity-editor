@@ -1,8 +1,8 @@
 <template>
-  <div class="portable-text-editor">
+  <div class="sanity-editor">
     <div
       v-if="editor"
-      class="portable-text-editor__toolbar"
+      class="sanity-editor__toolbar"
     >
       <slot
         name="toolbar"
@@ -36,7 +36,7 @@
     </div>
     <TiptapEditorContent
       v-if="editor"
-      class="portable-text-editor__content"
+      class="sanity-editor__content"
       :editor="editor"
     />
   </div>
@@ -46,23 +46,23 @@
 import type { Schema } from '@portabletext/schema'
 import type { PortableTextBlock } from '@portabletext/types'
 import type { AnyExtension } from '@tiptap/core'
-import type { PortableTextBlockExtension } from '../types/portableTextBlockExtension'
+import type { SanityEditorBlockExtension } from '../types/sanityEditorBlockExtension'
 import {
-  usePortableTextEditor,
-  type UsePortableTextEditorOptions,
-} from '../composables/usePortableTextEditor'
+  useSanityEditor,
+  type UseSanityEditorOptions,
+} from '../composables/useSanityEditor'
 
 const model = defineModel<PortableTextBlock[]>({ default: () => [] })
 
 const props = defineProps<{
   schema?: Schema
   extensions?: AnyExtension[]
-  portableTextBlockExtensions?: PortableTextBlockExtension[]
-  editorProps?: UsePortableTextEditorOptions['editorProps']
-  keyGenerator?: UsePortableTextEditorOptions['keyGenerator']
+  blockExtensions?: SanityEditorBlockExtension[]
+  editorProps?: UseSanityEditorOptions['editorProps']
+  keyGenerator?: UseSanityEditorOptions['keyGenerator']
 }>()
 
-const { editor } = usePortableTextEditor(
+const { editor } = useSanityEditor(
   model,
   (v: PortableTextBlock[]) => {
     model.value = v
@@ -70,7 +70,7 @@ const { editor } = usePortableTextEditor(
   {
     schema: props.schema,
     extensions: props.extensions,
-    portableTextBlockExtensions: props.portableTextBlockExtensions,
+    blockExtensions: props.blockExtensions,
     editorProps: props.editorProps,
     keyGenerator: props.keyGenerator,
   },

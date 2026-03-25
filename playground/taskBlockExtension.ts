@@ -1,5 +1,5 @@
 import type { PortableTextBlock } from '@portabletext/types'
-import type { PortableTextBlockExtension } from '../src/runtime/types/portableTextBlockExtension'
+import type { SanityEditorBlockExtension } from '../src/runtime/types/sanityEditorBlockExtension'
 
 const defaultKeyGenerator = (): string => `k${Math.random().toString(36).slice(2, 11)}`
 
@@ -47,7 +47,7 @@ function extractTaskItemText(taskItemNode: unknown): string {
 
 // Example extension for PT `types.task` blocks.
 // Intentionally kept in the playground so it is not shipped as part of the module.
-export const taskBlockExtension: PortableTextBlockExtension = {
+export const taskBlockExtension: SanityEditorBlockExtension = {
   type: 'task',
   mode: 'runContainer',
   containerTiptapNodeType: 'taskList',

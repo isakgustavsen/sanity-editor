@@ -42,10 +42,10 @@ What you get
   :::u-page-feature
   ---
   icon: i-lucide-square-pen
-  to: /api/portable-text-editor
+  to: /api/sanity-editor
   ---
   #title
-  [PortableTextEditor]{.text-primary} component
+  [SanityEditor]{.text-primary} component
 
   #description
   Drop-in editor with `v-model` for `PortableTextBlock[]` and an optional `#toolbar` slot for custom controls.
@@ -57,10 +57,10 @@ What you get
   to: /api/composable
   ---
   #title
-  [usePortableTextEditor]{.text-primary} composable
+  [useSanityEditor]{.text-primary} composable
 
   #description
-  Build your own UI while reusing the same TipTap ↔ Portable Text sync, extensions, and schema handling.
+  Build your own UI while reusing the same TipTap ↔ block sync, extensions, and schema handling.
   :::
 
   :::u-page-feature
@@ -72,7 +72,7 @@ What you get
   Bidirectional JSON conversion
 
   #description
-  `portableTextToTipTapJson` and `prosemirrorJsonToPortableText` map between TipTap/ProseMirror JSON and Portable Text blocks.
+  `sanityEditorBlocksToTiptapJson` and `sanityEditorProsemirrorJsonToBlocks` map between TipTap/ProseMirror JSON and `PortableTextBlock[]`.
   :::
 
   :::u-page-feature
@@ -81,7 +81,7 @@ What you get
   to: /guide/using-the-editor
   ---
   #title
-  Default Portable Text schema
+  Default schema
 
   #description
   Styles, lists, decorators, link annotation, and block objects such as horizontal rule—compiled with `@portabletext/schema`.
@@ -96,7 +96,7 @@ What you get
   Extensible blocks
 
   #description
-  Add TipTap extensions and `PortableTextBlockExtension` mappings for custom block types (single node or run containers).
+  Add TipTap extensions and `SanityEditorBlockExtension` mappings for custom block types (single node or run containers).
   :::
 
   :::u-page-feature
@@ -108,7 +108,7 @@ What you get
   [Nuxt UI editor]{.text-primary}
 
   #description
-  Bind `UEditor` with `createPortableTextContext` and the JSON converters, or use `usePortableTextEditor` with `UEditorToolbar` and `TiptapEditorContent`.
+  Bind `UEditor` with `createSanityEditorContext` and the JSON converters, or use `useSanityEditor` with `UEditorToolbar` and `TiptapEditorContent`.
   :::
 
   :::u-page-feature

@@ -8,10 +8,12 @@ If you fork or rename the GitHub remote, update `repository` / `bugs` / `homepag
 
 ## Features
 
-- `PortableTextEditor` client component with `v-model` for `PortableTextBlock[]` (and optional `#toolbar` slot)
-- `usePortableTextEditor` composable for custom UI
-- `prosemirrorJsonToPortableText` / `portableTextToTipTapJson` for TipTap JSON ↔ Portable Text
+- `SanityEditor` client component with `v-model` for `PortableTextBlock[]` (and optional `#toolbar` slot)
+- `useSanityEditor` composable for custom UI
+- `sanityEditorProsemirrorJsonToBlocks` / `sanityEditorBlocksToTiptapJson` for TipTap JSON ↔ blocks
 - Default schema from `@portabletext/schema` (styles, lists, decorators, link, block objects such as horizontal rule)
+
+Public APIs are prefixed with **`sanityEditor`** / **`SanityEditor`** per [Nuxt module best practices](https://nuxt.com/docs/4.x/guide/modules/best-practices) (components, composables, and auto-imports).
 
 ## Requirements
 
@@ -33,6 +35,8 @@ export default defineNuxtConfig({
 })
 ```
 
+Optional module options use the **`sanityEditor`** key (not `portableTextEditor`).
+
 ## Usage
 
 ```vue
@@ -43,11 +47,11 @@ const content = ref<PortableTextBlock[]>([])
 </script>
 
 <template>
-  <PortableTextEditor v-model="content" />
+  <SanityEditor v-model="content" />
 </template>
 ```
 
-Auto-imports include `usePortableTextEditor`, `PortableTextEditor`, and the portable-text helpers—see the module’s `addImports` in [`src/module.ts`](src/module.ts).
+Auto-imports include `useSanityEditor`, `SanityEditor`, and the conversion helpers—see the module’s `addImports` in [`src/module.ts`](src/module.ts).
 
 ## Local development
 
