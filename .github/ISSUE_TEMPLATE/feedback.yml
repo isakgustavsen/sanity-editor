@@ -1,0 +1,22 @@
+name: Feedback
+description: Share feedback on API, Portable Text coverage, or Sanity workflows
+title: "[feedback] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying **sanity-editor**. A short context block helps.
+  - type: textarea
+    id: context
+    attributes:
+      label: What are you trying to do?
+      description: e.g. Studio schema, headless CMS, custom block types.
+    validations:
+      required: false
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback or suggestion
+    validations:
+      required: true

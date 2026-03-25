@@ -1,8 +1,27 @@
 {
   "name": "sanity-editor",
-  "version": "1.0.0",
-  "description": "My new Nuxt module",
-  "repository": "your-org/my-module",
+  "version": "0.0.1",
+  "description": "Nuxt module: Portable Text editing with TipTap (ProseMirror JSON) and @portabletext/schema",
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "nuxt4",
+    "portable-text",
+    "portabletext",
+    "sanity",
+    "tiptap",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isakgustavsen/sanity-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/isakgustavsen/sanity-editor/issues"
+  },
+  "homepage": "https://github.com/isakgustavsen/sanity-editor#readme",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -20,7 +39,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE"
   ],
   "workspaces": [
     "playground"

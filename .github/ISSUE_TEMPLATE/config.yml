@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: General discussion
+    url: https://github.com/isakgustavsen/sanity-editor/discussions
+    about: Ideas and questions before opening an issue (if Discussions are enabled).

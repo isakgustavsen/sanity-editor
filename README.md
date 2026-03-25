@@ -1,84 +1,72 @@
-<!--
-Get your module up and running quickly.
+# sanity-editor
 
-Find and replace all on all files (CMD+SHIFT+F):
-- Name: My Module
-- Package name: my-module
-- Description: My new Nuxt module
--->
+**Experimental** Nuxt module: edit [Portable Text](https://portabletext.org/) in the browser with [TipTap](https://tiptap.dev/), bridged via ProseMirror JSON (not HTML). Pairs with [`nuxt-tiptap-editor`](https://github.com/modbender/nuxt-tiptap-editor).
 
-# My Module
+We are **looking for feedback** on API shape, schema coverage, and real-world Sanity workflows. Please open [Issues](https://github.com/isakgustavsen/sanity-editor/issues) or use **Feedback** in the issue chooser. Enable [Discussions](https://github.com/isakgustavsen/sanity-editor/discussions) on the repo if you want open-ended threads.
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![License][license-src]][license-href]
-[![Nuxt][nuxt-src]][nuxt-href]
-
-My new Nuxt module for doing amazing things.
-
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
-<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-<!-- - [📖 &nbsp;Documentation](https://example.com) -->
+If you fork or rename the GitHub remote, update `repository` / `bugs` / `homepage` in [`package.json`](package.json) and links in this README.
 
 ## Features
 
-<!-- Highlight some of the features your module provide here -->
-- ⛰ &nbsp;Foo
-- 🚠 &nbsp;Bar
-- 🌲 &nbsp;Baz
+- `PortableTextEditor` client component with `v-model` for `PortableTextBlock[]` (and optional `#toolbar` slot)
+- `usePortableTextEditor` composable for custom UI
+- `prosemirrorJsonToPortableText` / `portableTextToTipTapJson` for TipTap JSON ↔ Portable Text
+- Default schema from `@portabletext/schema` (styles, lists, decorators, link, block objects such as horizontal rule)
 
-## Quick Setup
+## Requirements
 
-Install the module to your Nuxt application with one command:
+- Nuxt 4
+- `nuxt-tiptap-editor` (installed as a peer; the module registers it for you)
+
+## Installation
 
 ```bash
-npx nuxt module add my-module
+pnpm add sanity-editor nuxt-tiptap-editor
+# or: npm install sanity-editor nuxt-tiptap-editor
 ```
 
-That's it! You can now use My Module in your Nuxt app ✨
+Add the module in `nuxt.config.ts`:
 
+```ts
+export default defineNuxtConfig({
+  modules: ['sanity-editor'],
+})
+```
 
-## Contribution
+## Usage
 
-<details>
-  <summary>Local development</summary>
-  
-  ```bash
-  # Install dependencies
-  npm install
-  
-  # Generate type stubs
-  npm run dev:prepare
-  
-  # Develop with the playground
-  npm run dev
-  
-  # Build the playground
-  npm run dev:build
-  
-  # Run ESLint
-  npm run lint
-  
-  # Run Vitest
-  npm run test
-  npm run test:watch
-  
-  # Release new version
-  npm run release
-  ```
+```vue
+<script setup lang="ts">
+import type { PortableTextBlock } from '@portabletext/types'
 
-</details>
+const content = ref<PortableTextBlock[]>([])
+</script>
 
+<template>
+  <PortableTextEditor v-model="content" />
+</template>
+```
 
-<!-- Badges -->
-[npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/my-module
+Auto-imports include `usePortableTextEditor`, `PortableTextEditor`, and the portable-text helpers—see the module’s `addImports` in [`src/module.ts`](src/module.ts).
 
-[npm-downloads-src]: https://img.shields.io/npm/dm/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npm.chart.dev/my-module
+## Local development
 
-[license-src]: https://img.shields.io/npm/l/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/my-module
+```bash
+pnpm install
+pnpm run dev:prepare
+pnpm dev
+```
 
-[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt
-[nuxt-href]: https://nuxt.com
+Then open the playground app. Other commands: `pnpm run lint`, `pnpm test`, `pnpm run test:types`, `pnpm run dev:build`.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose changes and give feedback.
+
+## License
+
+MIT
+
+## Badges
+
+[![CI](https://github.com/isakgustavsen/sanity-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/isakgustavsen/sanity-editor/actions/workflows/ci.yml)
+
+[npm](https://www.npmjs.com/package/sanity-editor) (after first publish)
